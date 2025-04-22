@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import RMCalculator from './RMCalculator';
 import Settings from './Settings';
+import NutrientConverter from './NutrientConverter';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const modules = [
@@ -79,6 +80,15 @@ export default function HomeScreen() {
     return (
       <RMCalculator 
         onBack={() => setCurrentScreen('home')} 
+        themeStyle={themeStyle}
+      />
+    );
+  }
+  
+  if (currentScreen === 'nutrient') {
+    return (
+      <NutrientConverter
+        onBack={() => setCurrentScreen('home')}
         themeStyle={themeStyle}
       />
     );

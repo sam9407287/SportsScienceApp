@@ -13,21 +13,62 @@ import {
   StatusBar
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { t, getCurrentLanguage } from '../i18n';
 
-// 转换类型常量
-const CONVERSION_TYPES = {
-  MACROS_TO_CALORIES: '宏量营养素转卡路里',
-  CALORIES_TO_MACROS: '卡路里转宏量营养素',
-  FOOD_TO_NUTRIENTS: '食物转营养素'
+// 定義轉換類型鍵
+const CONVERSION_TYPE_KEYS = {
+  MACROS_TO_CALORIES: 'macros_to_calories',
+  CALORIES_TO_MACROS: 'calories_to_macros',
+  FOOD_TO_NUTRIENTS: 'food_to_nutrients'
 };
 
-// 营养素换算类型
-const conversionTypes = [
-  { id: 'calToMacro', name: '热量转换宏量素' },
-  { id: 'macroToCal', name: '宏量素转换热量' },
-  { id: 'weightConversion', name: '食物重量换算' },
-  { id: 'nutrientPercentage', name: '营养素百分比计算' }
-];
+// 食物翻譯資料
+const foodTranslations = {
+  'en': {
+    '鸡胸肉(生)': 'Chicken Breast (Raw)',
+    '鸡胸肉(熟)': 'Chicken Breast (Cooked)',
+    '鸡蛋': 'Egg',
+    '牛肉(瘦)': 'Beef (Lean)',
+    '三文鱼': 'Salmon',
+    '金枪鱼': 'Tuna',
+    '豆腐': 'Tofu',
+    '米饭(熟)': 'Rice (Cooked)',
+    '面包(白)': 'Bread (White)',
+    '燕麦': 'Oats',
+    '花生酱': 'Peanut Butter',
+    '牛奶(全脂)': 'Milk (Whole)',
+    '希腊酸奶': 'Greek Yogurt',
+    '橄榄油': 'Olive Oil',
+    '杏仁': 'Almonds',
+    '花椰菜': 'Broccoli',
+    '菠菜': 'Spinach',
+    '香蕉': 'Banana',
+    '苹果': 'Apple',
+    '鳄梨': 'Avocado'
+  },
+  'zh': {
+    '鸡胸肉(生)': '鸡胸肉(生)',
+    '鸡胸肉(熟)': '鸡胸肉(熟)',
+    '鸡蛋': '鸡蛋',
+    '牛肉(瘦)': '牛肉(瘦)',
+    '三文鱼': '三文鱼',
+    '金枪鱼': '金枪鱼',
+    '豆腐': '豆腐',
+    '米饭(熟)': '米饭(熟)',
+    '面包(白)': '面包(白)',
+    '燕麦': '燕麦',
+    '花生酱': '花生酱',
+    '牛奶(全脂)': '牛奶(全脂)',
+    '希腊酸奶': '希腊酸奶',
+    '橄榄油': '橄榄油',
+    '杏仁': '杏仁',
+    '花椰菜': '花椰菜',
+    '菠菜': '菠菜',
+    '香蕉': '香蕉',
+    '苹果': '苹果',
+    '鳄梨': '鳄梨'
+  }
+};
 
 // 宏量素热量值（每克）
 const PROTEIN_CAL_PER_GRAM = 4;
@@ -59,7 +100,7 @@ const commonFoods = [
 ];
 
 export default function NutrientConverter({ onBack, themeStyle }) {
-  const [conversionType, setConversionType] = useState(CONVERSION_TYPES.MACROS_TO_CALORIES);
+  const [conversionType, setConversionType] = useState(CONVERSION_TYPE_KEYS.MACROS_TO_CALORIES);
   const [calories, setCalories] = useState('');
   const [protein, setProtein] = useState('');
   const [carbs, setCarbs] = useState('');
@@ -77,6 +118,31 @@ export default function NutrientConverter({ onBack, themeStyle }) {
     carbs: 0,
     fat: 0
   });
+  const [currentLanguage, setCurrentLanguage] = useState(getCurrentLanguage());
+  
+  // 監聽語言變化
+  useEffect(() => {
+    const checkLanguage = () => {
+      const newLang = getCurrentLanguage();
+      if (newLang !== currentLanguage) {
+        setCurrentLanguage(newLang);
+      }
+    };
+    
+    // 每秒檢查一次語言設置
+    const intervalId = setInterval(checkLanguage, 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [currentLanguage]);
+  
+  // 翻譯食物名稱
+  const getLocalizedFoodName = (chineseName) => {
+    const currentLang = getCurrentLanguage();
+    if (currentLang === 'zh' || !foodTranslations[currentLang]) {
+      return chineseName;
+    }
+    return foodTranslations[currentLang][chineseName] || chineseName;
+  };
   
   useEffect(() => {
     // 百分比总和应为100%
@@ -84,9 +150,9 @@ export default function NutrientConverter({ onBack, themeStyle }) {
                             parseInt(carbsPercentage || 0) + 
                             parseInt(fatPercentage || 0);
                             
-    if (conversionType === CONVERSION_TYPES.MACROS_TO_CALORIES && calories && totalPercentage === 100) {
+    if (conversionType === CONVERSION_TYPE_KEYS.MACROS_TO_CALORIES && calories && totalPercentage === 100) {
       calculateMacrosFromCalories();
-    } else if (conversionType === CONVERSION_TYPES.CALORIES_TO_MACROS && (protein || carbs || fat)) {
+    } else if (conversionType === CONVERSION_TYPE_KEYS.CALORIES_TO_MACROS && (protein || carbs || fat)) {
       calculateCaloriesFromMacros();
     }
   }, [calories, proteinPercentage, carbsPercentage, fatPercentage, protein, carbs, fat, conversionType]);
@@ -162,6 +228,58 @@ export default function NutrientConverter({ onBack, themeStyle }) {
     }
   };
   
+  // 获取头部样式
+  const getHeaderStyle = () => {
+    switch(themeStyle) {
+      case 'sport':
+        return '#16213e';
+      case 'minimal':
+        return '#fff';
+      case 'professional':
+        return '#1a2a6c';
+      default:
+        return '#007AFF';
+    }
+  };
+  
+  // 获取头部文本颜色
+  const getThemeHeaderTextColor = () => {
+    switch(themeStyle) {
+      case 'sport':
+        return '#fff';
+      case 'minimal':
+        return '#333';
+      case 'professional':
+        return '#fff';
+      default:
+        return '#fff';
+    }
+  };
+  
+  // 获取主题主色调
+  const getThemePrimaryColor = () => {
+    switch(themeStyle) {
+      case 'sport':
+        return '#4361ee';
+      case 'minimal':
+        return '#6b9080';
+      case 'professional':
+        return '#1a2a6c';
+      default:
+        return '#007AFF';
+    }
+  };
+  
+  // 获取文本颜色
+  const getTextColor = () => {
+    switch(themeStyle) {
+      case 'sport':
+        return '#fff';
+      default:
+        return '#333';
+    }
+  };
+  
   const getCardStyle = () => {
     switch(themeStyle) {
       case 'sport':
@@ -226,107 +344,62 @@ export default function NutrientConverter({ onBack, themeStyle }) {
     }
   };
   
-  // 食物选择模态框
-  const FoodSelectionModal = () => {
-    return (
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={foodModalVisible}
-        onRequestClose={() => setFoodModalVisible(false)}
-      >
-        <Pressable 
-          style={styles.modalOverlay}
-          onPress={() => setFoodModalVisible(false)}
-        >
-          <View 
-            style={[
-              styles.modalView, 
-              getCardStyle(),
-              { width: '90%', alignSelf: 'center' }
-            ]}
-            onStartShouldSetResponder={() => true}
-            onTouchEnd={(e) => e.stopPropagation()}
-          >
-            <Text style={[styles.modalTitle, getTextStyle()]}>选择食物</Text>
-            <ScrollView style={styles.foodList}>
-              {commonFoods.map((food, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.foodItem,
-                    selectedFood && selectedFood.name === food.name && styles.selectedFoodItem
-                  ]}
-                  onPress={() => {
-                    setSelectedFood(food);
-                    setFoodModalVisible(false);
-                  }}
-                >
-                  <Text 
-                    style={[
-                      styles.foodItemText, 
-                      getTextStyle(),
-                      selectedFood && selectedFood.name === food.name && styles.selectedFoodText
-                    ]}
-                  >
-                    {food.name}
-                  </Text>
-                  <Text 
-                    style={[
-                      styles.foodItemDetails, 
-                      getTextStyle(),
-                      selectedFood && selectedFood.name === food.name && styles.selectedFoodText
-                    ]}
-                  >
-                    {`蛋白质:${food.protein}g | 碳水:${food.carbs}g | 脂肪:${food.fat}g`}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        </Pressable>
-      </Modal>
-    );
+  // 獲取轉換類型選項
+  const getConversionTypeOptions = () => {
+    return [
+      { 
+        key: CONVERSION_TYPE_KEYS.MACROS_TO_CALORIES, 
+        label: t(CONVERSION_TYPE_KEYS.MACROS_TO_CALORIES, '宏量營養素轉卡路里')
+      },
+      { 
+        key: CONVERSION_TYPE_KEYS.CALORIES_TO_MACROS, 
+        label: t(CONVERSION_TYPE_KEYS.CALORIES_TO_MACROS, '卡路里轉宏量營養素')
+      },
+      { 
+        key: CONVERSION_TYPE_KEYS.FOOD_TO_NUTRIENTS, 
+        label: t(CONVERSION_TYPE_KEYS.FOOD_TO_NUTRIENTS, '食物轉營養素')
+      }
+    ];
   };
   
   // 渲染不同转换类型的内容
   const renderConversionContent = () => {
     switch(conversionType) {
-      case CONVERSION_TYPES.MACROS_TO_CALORIES:
+      case CONVERSION_TYPE_KEYS.MACROS_TO_CALORIES:
         return (
           <View style={styles.conversionContainer}>
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, getTextStyle()]}>蛋白质 (克)</Text>
+              <Text style={[styles.label, getTextStyle()]}>{t('protein', '蛋白质')} ({t('grams', '克')})</Text>
               <TextInput
                 style={[styles.input, getInputStyle()]}
                 keyboardType="numeric"
                 value={protein}
                 onChangeText={setProtein}
-                placeholder="输入蛋白质克数"
+                placeholder={t('enter_protein_grams', '输入蛋白质克数')}
                 placeholderTextColor={themeStyle === 'sport' ? '#99a8cc' : '#aaa'}
               />
             </View>
             
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, getTextStyle()]}>碳水化合物 (克)</Text>
+              <Text style={[styles.label, getTextStyle()]}>{t('carbs', '碳水化合物')} ({t('grams', '克')})</Text>
               <TextInput
                 style={[styles.input, getInputStyle()]}
                 keyboardType="numeric"
                 value={carbs}
                 onChangeText={setCarbs}
-                placeholder="输入碳水克数"
+                placeholder={t('enter_carbs_grams', '输入碳水克数')}
                 placeholderTextColor={themeStyle === 'sport' ? '#99a8cc' : '#aaa'}
               />
             </View>
             
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, getTextStyle()]}>脂肪 (克)</Text>
+              <Text style={[styles.label, getTextStyle()]}>{t('fat', '脂肪')} ({t('grams', '克')})</Text>
               <TextInput
                 style={[styles.input, getInputStyle()]}
                 keyboardType="numeric"
                 value={fat}
                 onChangeText={setFat}
-                placeholder="输入脂肪克数"
+                placeholder={t('enter_fat_grams', '输入脂肪克数')}
                 placeholderTextColor={themeStyle === 'sport' ? '#99a8cc' : '#aaa'}
               />
             </View>
@@ -335,27 +408,27 @@ export default function NutrientConverter({ onBack, themeStyle }) {
               style={[styles.button, getButtonStyle()]}
               onPress={calculateCaloriesFromMacros}
             >
-              <Text style={styles.buttonText}>计算卡路里</Text>
+              <Text style={styles.buttonText}>{t('calculate_calories', '计算卡路里')}</Text>
             </TouchableOpacity>
             
             <View style={[styles.resultCard, getCardStyle()]}>
-              <Text style={[styles.resultLabel, getTextStyle()]}>总卡路里</Text>
-              <Text style={[styles.resultValue, getTextStyle()]}>{calories ? `${calories} 千卡` : '-'}</Text>
+              <Text style={[styles.resultLabel, getTextStyle()]}>{t('total_calories', '总卡路里')}</Text>
+              <Text style={[styles.resultValue, getTextStyle()]}>{calories ? `${calories} ${t('kcal', '千卡')}` : '-'}</Text>
             </View>
           </View>
         );
         
-      case CONVERSION_TYPES.CALORIES_TO_MACROS:
+      case CONVERSION_TYPE_KEYS.CALORIES_TO_MACROS:
         return (
           <View style={styles.conversionContainer}>
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, getTextStyle()]}>卡路里</Text>
+              <Text style={[styles.label, getTextStyle()]}>{t('calories', '卡路里')}</Text>
               <TextInput
                 style={[styles.input, getInputStyle()]}
                 keyboardType="numeric"
                 value={calories}
                 onChangeText={setCalories}
-                placeholder="输入总卡路里"
+                placeholder={t('enter_total_calories', '输入总卡路里')}
                 placeholderTextColor={themeStyle === 'sport' ? '#99a8cc' : '#aaa'}
               />
             </View>
@@ -364,27 +437,27 @@ export default function NutrientConverter({ onBack, themeStyle }) {
               style={[styles.button, getButtonStyle()]}
               onPress={calculateMacrosFromCalories}
             >
-              <Text style={styles.buttonText}>计算宏量营养素</Text>
+              <Text style={styles.buttonText}>{t('calculate_macros', '计算宏量营养素')}</Text>
             </TouchableOpacity>
             
             <View style={[styles.resultCard, getCardStyle()]}>
-              <Text style={[styles.resultLabel, getTextStyle()]}>蛋白质 (30%)</Text>
-              <Text style={[styles.resultValue, getTextStyle()]}>{protein ? `${protein}克` : '-'}</Text>
+              <Text style={[styles.resultLabel, getTextStyle()]}>{t('protein', '蛋白质')} (30%)</Text>
+              <Text style={[styles.resultValue, getTextStyle()]}>{protein ? `${protein}${t('grams', '克')}` : '-'}</Text>
             </View>
             
             <View style={[styles.resultCard, getCardStyle()]}>
-              <Text style={[styles.resultLabel, getTextStyle()]}>碳水化合物 (50%)</Text>
-              <Text style={[styles.resultValue, getTextStyle()]}>{carbs ? `${carbs}克` : '-'}</Text>
+              <Text style={[styles.resultLabel, getTextStyle()]}>{t('carbs', '碳水化合物')} (50%)</Text>
+              <Text style={[styles.resultValue, getTextStyle()]}>{carbs ? `${carbs}${t('grams', '克')}` : '-'}</Text>
             </View>
             
             <View style={[styles.resultCard, getCardStyle()]}>
-              <Text style={[styles.resultLabel, getTextStyle()]}>脂肪 (20%)</Text>
-              <Text style={[styles.resultValue, getTextStyle()]}>{fat ? `${fat}克` : '-'}</Text>
+              <Text style={[styles.resultLabel, getTextStyle()]}>{t('fat', '脂肪')} (20%)</Text>
+              <Text style={[styles.resultValue, getTextStyle()]}>{fat ? `${fat}${t('grams', '克')}` : '-'}</Text>
             </View>
           </View>
         );
         
-      case CONVERSION_TYPES.FOOD_TO_NUTRIENTS:
+      case CONVERSION_TYPE_KEYS.FOOD_TO_NUTRIENTS:
         return (
           <View style={styles.conversionContainer}>
             <TouchableOpacity
@@ -392,18 +465,18 @@ export default function NutrientConverter({ onBack, themeStyle }) {
               onPress={() => setFoodModalVisible(true)}
             >
               <Text style={[getTextStyle()]}>
-                {selectedFood ? selectedFood.name : '选择食物'}
+                {selectedFood ? getLocalizedFoodName(selectedFood.name) : t('select_food', '选择食物')}
               </Text>
             </TouchableOpacity>
             
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, getTextStyle()]}>重量 (克)</Text>
+              <Text style={[styles.label, getTextStyle()]}>{t('food_weight', '重量')} ({t('grams', '克')})</Text>
               <TextInput
                 style={[styles.input, getInputStyle()]}
                 keyboardType="numeric"
                 value={foodWeight}
                 onChangeText={setFoodWeight}
-                placeholder="输入食物重量"
+                placeholder={t('enter_food_weight', '输入食物重量')}
                 placeholderTextColor={themeStyle === 'sport' ? '#99a8cc' : '#aaa'}
               />
             </View>
@@ -411,23 +484,23 @@ export default function NutrientConverter({ onBack, themeStyle }) {
             {selectedFood && (
               <>
                 <View style={[styles.resultCard, getCardStyle()]}>
-                  <Text style={[styles.resultLabel, getTextStyle()]}>卡路里</Text>
-                  <Text style={[styles.resultValue, getTextStyle()]}>{`${foodNutrients.calories} 千卡`}</Text>
+                  <Text style={[styles.resultLabel, getTextStyle()]}>{t('calories', '卡路里')}</Text>
+                  <Text style={[styles.resultValue, getTextStyle()]}>{`${foodNutrients.calories} ${t('kcal', '千卡')}`}</Text>
                 </View>
                 
                 <View style={[styles.resultCard, getCardStyle()]}>
-                  <Text style={[styles.resultLabel, getTextStyle()]}>蛋白质</Text>
-                  <Text style={[styles.resultValue, getTextStyle()]}>{`${foodNutrients.protein}克`}</Text>
+                  <Text style={[styles.resultLabel, getTextStyle()]}>{t('protein', '蛋白质')}</Text>
+                  <Text style={[styles.resultValue, getTextStyle()]}>{`${foodNutrients.protein}${t('grams', '克')}`}</Text>
                 </View>
                 
                 <View style={[styles.resultCard, getCardStyle()]}>
-                  <Text style={[styles.resultLabel, getTextStyle()]}>碳水化合物</Text>
-                  <Text style={[styles.resultValue, getTextStyle()]}>{`${foodNutrients.carbs}克`}</Text>
+                  <Text style={[styles.resultLabel, getTextStyle()]}>{t('carbs', '碳水化合物')}</Text>
+                  <Text style={[styles.resultValue, getTextStyle()]}>{`${foodNutrients.carbs}${t('grams', '克')}`}</Text>
                 </View>
                 
                 <View style={[styles.resultCard, getCardStyle()]}>
-                  <Text style={[styles.resultLabel, getTextStyle()]}>脂肪</Text>
-                  <Text style={[styles.resultValue, getTextStyle()]}>{`${foodNutrients.fat}克`}</Text>
+                  <Text style={[styles.resultLabel, getTextStyle()]}>{t('fat', '脂肪')}</Text>
+                  <Text style={[styles.resultValue, getTextStyle()]}>{`${foodNutrients.fat}${t('grams', '克')}`}</Text>
                 </View>
               </>
             )}
@@ -441,50 +514,108 @@ export default function NutrientConverter({ onBack, themeStyle }) {
     }
   };
   
+  // 食物选择模态框
+  const FoodSelectionModal = () => (
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={foodModalVisible}
+      onRequestClose={() => setFoodModalVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={[styles.modalView, getCardStyle()]}>
+          <Text style={[styles.modalTitle, getTextStyle()]}>{t('select_food', '选择食物')}</Text>
+          <ScrollView style={styles.foodList}>
+            {commonFoods.map((food, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.foodItem,
+                  selectedFood && selectedFood.name === food.name && styles.selectedFoodItem
+                ]}
+                onPress={() => {
+                  setSelectedFood(food);
+                  setFoodModalVisible(false);
+                }}
+              >
+                <Text style={[
+                  styles.foodItemText,
+                  getTextStyle(),
+                  selectedFood && selectedFood.name === food.name && styles.selectedFoodText
+                ]}>
+                  {getLocalizedFoodName(food.name)}
+                </Text>
+                <Text style={[styles.foodItemDetails, getTextStyle()]}>
+                  {t('protein', '蛋白质')}: {food.protein}g, {t('carbs', '碳水')}: {food.carbs}g, {t('fat', '脂肪')}: {food.fat}g
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={[styles.button, getButtonStyle(), { marginTop: 15 }]}
+            onPress={() => setFoodModalVisible(false)}
+          >
+            <Text style={styles.buttonText}>{t('cancel', '取消')}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+  
+  // 获取转换类型选项
+  const conversionTypeOptions = getConversionTypeOptions();
+  
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: getBackgroundColor() }]}>
-      <StatusBar barStyle={themeStyle === 'sport' ? 'light-content' : 'dark-content'} />
+      <StatusBar 
+        barStyle={themeStyle === 'sport' ? 'light-content' : 'dark-content'} 
+        backgroundColor={getHeaderStyle()} 
+      />
       
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={onBack}
-        >
-          <Text style={[styles.backButtonText, getTextStyle()]}>返回</Text>
+      <View style={[styles.header, { backgroundColor: getHeaderStyle() }]}>
+        <TouchableOpacity style={styles.backButton} onPress={onBack}>
+          <Text style={[styles.backButtonText, { color: getThemeHeaderTextColor() }]}>
+            {t('back', '返回')}
+          </Text>
         </TouchableOpacity>
-        
-        <Text style={[styles.headerTitle, getTextStyle()]}>营养素换算</Text>
-        
+        <Text style={[styles.headerTitle, { color: getThemeHeaderTextColor() }]}>
+          {t('nutrient_converter', '营养素换算')}
+        </Text>
         <View style={styles.placeholder}></View>
       </View>
       
-      <ScrollView 
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.typeSelector}>
-          {Object.values(CONVERSION_TYPES).map((type) => (
-            <TouchableOpacity
-              key={type}
-              style={[
-                styles.typeButton,
-                conversionType === type ? [styles.selectedTypeButton, getButtonStyle()] : null
-              ]}
-              onPress={() => setConversionType(type)}
-            >
-              <Text
+      <ScrollView>
+        <View style={styles.container}>
+          {/* 转换类型选择器 */}
+          <View style={styles.typeSelector}>
+            {conversionTypeOptions.map((option, index) => (
+              <TouchableOpacity
+                key={index}
                 style={[
-                  styles.typeButtonText,
-                  conversionType === type ? styles.selectedTypeText : getTextStyle()
+                  styles.typeButton,
+                  {
+                    backgroundColor: conversionType === option.key 
+                      ? getThemePrimaryColor() 
+                      : 'transparent'
+                  },
+                  conversionType === option.key ? styles.selectedTypeButton : null
                 ]}
+                onPress={() => setConversionType(option.key)}
               >
-                {type}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text style={[
+                  styles.typeButtonText,
+                  { color: conversionType === option.key ? '#fff' : getTextColor() },
+                  conversionType === option.key ? styles.selectedTypeText : null
+                ]}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          
+          {/* 渲染不同类型的转换内容 */}
+          {renderConversionContent()}
         </View>
-        
-        {renderConversionContent()}
       </ScrollView>
     </SafeAreaView>
   );

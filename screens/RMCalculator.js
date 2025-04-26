@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { 
   View, 
   Text, 
@@ -17,12 +17,14 @@ import {
   TouchableWithoutFeedback,
   KeyboardAvoidingView
 } from 'react-native';
+import { t } from '../i18n';
+import { ThemeContext } from '../context/ThemeContext';
 
 // 獲取屏幕尺寸
 const { width, height } = Dimensions.get('window');
 
 // 自定義模態框組件 - 簡單確保在所有設備上能正確顯示
-const ExerciseSelectionModal = ({ visible, onClose, options, selectedValue, onSelect, themeColors }) => {
+const ExerciseSelectionModal = ({ visible, onClose, options, selectedValue, onSelect, isDarkMode }) => {
   if (!visible) return null;
   
   return (
@@ -52,30 +54,32 @@ const ExerciseSelectionModal = ({ visible, onClose, options, selectedValue, onSe
         </TouchableWithoutFeedback>
         
         <View style={{
-          backgroundColor: themeColors.cardBackground,
+          backgroundColor: isDarkMode ? '#1e1e1e' : '#fff',
           borderRadius: 15,
           width: '80%',
           alignSelf: 'center',
           maxHeight: '70%',
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.25,
+          shadowOpacity: isDarkMode ? 0.25 : 0.1,
           shadowRadius: 3.84,
           elevation: 5,
+          borderWidth: isDarkMode ? 1 : 0,
+          borderColor: isDarkMode ? '#333' : 'transparent',
         }}>
           <View style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
             borderBottomWidth: 1,
-            borderBottomColor: themeColors.inputBorder,
+            borderBottomColor: isDarkMode ? '#333' : '#f0f0f0',
             padding: 15,
           }}>
             <Text style={{
               fontSize: 18,
               fontWeight: 'bold',
-              color: themeColors.text,
-            }}>選擇訓練動作</Text>
+              color: isDarkMode ? '#fff' : '#333',
+            }}>{t('select_exercise', '選擇訓練動作')}</Text>
             <TouchableOpacity
               style={{
                 width: 30,
@@ -88,7 +92,7 @@ const ExerciseSelectionModal = ({ visible, onClose, options, selectedValue, onSe
               <Text style={{
                 fontSize: 24,
                 fontWeight: 'bold',
-                color: themeColors.text,
+                color: isDarkMode ? '#fff' : '#333',
               }}>×</Text>
             </TouchableOpacity>
           </View>
@@ -103,13 +107,11 @@ const ExerciseSelectionModal = ({ visible, onClose, options, selectedValue, onSe
                   alignItems: 'center',
                   padding: 15,
                   borderBottomWidth: 1,
-                  borderBottomColor: themeColors.inputBorder,
+                  borderBottomColor: isDarkMode ? '#333' : '#f0f0f0',
                   backgroundColor: selectedValue === option.value 
-                    ? (themeColors.accent === '#e94560' 
-                        ? 'rgba(233, 69, 96, 0.1)' 
-                        : themeColors.accent === '#6b9080' 
-                          ? '#f0f7f4' 
-                          : '#f0f5ff')
+                    ? (isDarkMode 
+                        ? 'rgba(67, 97, 238, 0.1)' 
+                        : 'rgba(0, 122, 255, 0.05)')
                     : 'transparent',
                 }}
                 onPress={() => {
@@ -119,14 +121,16 @@ const ExerciseSelectionModal = ({ visible, onClose, options, selectedValue, onSe
               >
                 <Text style={{
                   fontSize: 16,
-                  color: selectedValue === option.value ? themeColors.accent : themeColors.text,
+                  color: selectedValue === option.value 
+                    ? (isDarkMode ? '#4361ee' : '#007AFF') 
+                    : (isDarkMode ? '#fff' : '#333'),
                   fontWeight: selectedValue === option.value ? 'bold' : 'normal',
                 }}>
                   {option.label}
                 </Text>
                 {selectedValue === option.value && (
                   <Text style={{
-                    color: themeColors.accent,
+                    color: isDarkMode ? '#4361ee' : '#007AFF',
                     fontSize: 18,
                     fontWeight: 'bold',
                   }}>✓</Text>
@@ -140,7 +144,9 @@ const ExerciseSelectionModal = ({ visible, onClose, options, selectedValue, onSe
   );
 };
 
-export default function RMCalculator({ onBack, themeStyle = 'sport', isDarkMode = false }) {
+export default function RMCalculator({ onBack }) {
+  const { isDarkMode } = useContext(ThemeContext);
+  
   // 状态管理
   const [gender, setGender] = useState('male'); // 性别：男/女
   const [age, setAge] = useState(''); // 年龄
@@ -153,120 +159,122 @@ export default function RMCalculator({ onBack, themeStyle = 'sport', isDarkMode 
 
   // 训练动作列表
   const exerciseOptions = [
-    { label: '深蹲', value: 'squat' },
-    { label: '硬舉', value: 'deadlift' },
-    { label: '相撲硬舉', value: 'sumo_deadlift' },
-    { label: '高背槓深蹲', value: 'high_bar_squat' },
-    { label: '低背槓深蹲', value: 'low_bar_squat' },
-    { label: '划船', value: 'row' },
-    { label: '引體向上', value: 'pull_up' },
-    { label: '肩推', value: 'shoulder_press' },
-    { label: '臥推', value: 'bench_press' },
-    { label: '通用模型', value: 'general' },
+    { label: t('squat', '深蹲'), value: 'squat' },
+    { label: t('deadlift', '硬舉'), value: 'deadlift' },
+    { label: t('sumo_deadlift', '相撲硬舉'), value: 'sumo_deadlift' },
+    { label: t('high_bar_squat', '高背槓深蹲'), value: 'high_bar_squat' },
+    { label: t('low_bar_squat', '低背槓深蹲'), value: 'low_bar_squat' },
+    { label: t('row', '划船'), value: 'row' },
+    { label: t('pull_up', '引體向上'), value: 'pull_up' },
+    { label: t('shoulder_press', '肩推'), value: 'shoulder_press' },
+    { label: t('bench_press', '臥推'), value: 'bench_press' },
+    { label: t('general_model', '通用模型'), value: 'general' },
   ];
 
-  // 获取当前选择的训练动作标签
-  const getExerciseLabel = () => {
-    const selectedExercise = exerciseOptions.find(option => option.value === exercise);
-    return selectedExercise ? selectedExercise.label : '請選擇訓練動作';
-  };
-
-  // 计算RM值
+  // 计算RM值的函数
   const calculateRM = () => {
-    if (!weight || !reps) return;
+    if (!weight || !reps || (exercise === 'pull_up' && !bodyWeight)) {
+      alert(t('fill_all_required_fields', '請填寫必填項'));
+      return;
+    }
+
+    const w = parseFloat(weight);
+    const r = parseFloat(reps);
+    const bw = exercise === 'pull_up' ? parseFloat(bodyWeight) : 0;
+
+    if (isNaN(w) || isNaN(r) || (exercise === 'pull_up' && isNaN(bw))) {
+      alert(t('invalid_input', '輸入無效'));
+      return;
+    }
+
+    // 使用Epley公式计算1RM
+    const epley = w * (1 + r / 30);
+
+    // 使用Brzycki公式计算1RM
+    const brzycki = w * (36 / (37 - r));
+
+    // 使用McGlothin公式计算1RM
+    const mcglothin = (100 * w) / (101.3 - 2.67123 * r);
+
+    // 使用Lombardi公式计算1RM
+    const lombardi = w * Math.pow(r, 0.1);
+
+    // 根据运动类型和个体特征调整预测RM
+    let adjustedRM = (epley + brzycki + mcglothin + lombardi) / 4;
     
-    const weightNum = parseFloat(weight);
-    const repsNum = parseInt(reps);
+    // 調整系數 - 根據國際體壇研究數據及實際經驗優化
+    const genderFactor = gender === 'male' ? 1.0 : 0.85; // 女性平均力量为男性的85%
+    const ageFactor = age 
+      ? (parseInt(age) < 20 
+          ? 0.9 
+          : parseInt(age) > 50 
+            ? 0.8 
+            : 1.0) 
+      : 1.0;
     
-    if (isNaN(weightNum) || isNaN(repsNum)) return;
-    
-    // 基础1RM计算（使用Brzycki公式）
-    // 1RM = 重量 × (36 / (37 - 重复次数))
-    let oneRM = weightNum * (36 / (37 - repsNum));
-    
-    // 根据不同训练动作进行特定调整
-    switch (exercise) {
+    // 針對不同的動作做特定的調整
+    let exerciseFactor = 1.0;
+    switch(exercise) {
       case 'squat':
-        // 深蹲特定调整
-        oneRM = oneRM * 1.05;
-        break;
-      case 'deadlift':
-        // 硬举特定调整
-        oneRM = oneRM * 1.08;
-        break;
-      case 'sumo_deadlift':
-        // 相扑硬举特定调整
-        oneRM = oneRM * 1.07;
-        break;
       case 'high_bar_squat':
-        // 高背杠深蹲调整
-        oneRM = oneRM * 1.03;
+        exerciseFactor = 0.98;
         break;
       case 'low_bar_squat':
-        // 低背杠深蹲调整
-        oneRM = oneRM * 1.06;
+        exerciseFactor = 1.05;
         break;
-      case 'row':
-        // 划船特定调整
-        oneRM = oneRM * 0.98;
+      case 'deadlift':
+        exerciseFactor = 1.03;
+        break;
+      case 'sumo_deadlift':
+        exerciseFactor = 1.02;
         break;
       case 'bench_press':
-        // 臥推特定调整
-        oneRM = oneRM * 1.03;
-        break;
-      case 'pull_up':
-        // 引体向上需要考虑体重
-        if (bodyWeight && !isNaN(parseFloat(bodyWeight))) {
-          const bodyWeightNum = parseFloat(bodyWeight);
-          // 引体向上计算：(额外负重 + 体重) * 系数
-          oneRM = (weightNum + bodyWeightNum) * (36 / (37 - repsNum)) * 0.95;
-        } else {
-          // 如果没有输入体重，使用默认计算
-          oneRM = oneRM * 0.95;
-        }
+        exerciseFactor = 1.0;
         break;
       case 'shoulder_press':
-        // 肩推特定调整
-        oneRM = oneRM * 0.97;
+        exerciseFactor = 0.95;
+        break;
+      case 'row':
+        exerciseFactor = 0.97;
+        break;
+      case 'pull_up':
+        // 引體向上需要考慮體重
+        exerciseFactor = 0.9;
+        // 如果是做附重引體向上
+        if (w > 0) {
+          // 計算總負荷（體重+附加重量）的1RM
+          adjustedRM = (bw + w) * exerciseFactor * genderFactor * ageFactor;
+          // 然後減去體重得到附加重量的1RM
+          adjustedRM = adjustedRM - bw;
+        } else {
+          // 做不附重的引體向上，返回體重的百分比
+          adjustedRM = bw * exerciseFactor * genderFactor * ageFactor;
+        }
         break;
       case 'general':
       default:
-        // 通用模型，不做额外调整
-        break;
+        exerciseFactor = 1.0;
     }
     
-    // 根据性别和年龄进行调整
-    let adjustedOneRM = oneRM;
-    
-    if (age) {
-      const ageNum = parseInt(age);
-      if (!isNaN(ageNum)) {
-        // 年龄调整系数（不同年龄段有不同的调整）
-        if (ageNum > 55) {
-          adjustedOneRM = adjustedOneRM * 0.90;
-        } else if (ageNum > 40) {
-          adjustedOneRM = adjustedOneRM * 0.95;
-        } else if (ageNum < 18) {
-          adjustedOneRM = adjustedOneRM * 0.93;
-        }
-      }
+    // 如果不是引體向上，正常計算
+    if (exercise !== 'pull_up') {
+      adjustedRM = adjustedRM * exerciseFactor * genderFactor * ageFactor;
     }
     
-    // 性别调整
-    if (gender === 'female') {
-      adjustedOneRM = adjustedOneRM * 0.85;
-    }
-    
-    // 计算1RM至20RM
+    // 计算不同次数的RM
     const results = [];
-    for (let i = 1; i <= 20; i++) {
-      // 使用不同百分比计算不同的RM
-      // 常用公式: n-RM = 1RM * (1 - (n-1) * 0.025)
-      const percentage = 1 - (i-1) * 0.025;
-      const value = Math.round(adjustedOneRM * percentage * 10) / 10; // 保留一位小数
+    for (let i = 1; i <= 10; i++) {
+      let repRM;
+      if (i === 1) {
+        repRM = Math.round(adjustedRM);
+      } else {
+        // 使用调整后的Epley公式反向计算不同次数RM
+        repRM = Math.round(adjustedRM / (1 + i / 30));
+      }
+      
       results.push({
-        rm: i,
-        weight: value,
+        reps: i,
+        weight: repRM
       });
     }
     
@@ -278,643 +286,752 @@ export default function RMCalculator({ onBack, themeStyle = 'sport', isDarkMode 
     calculateRM();
   }, [weight, reps, gender, age, exercise, bodyWeight]);
 
-  // 根据不同主题风格返回不同样式
-  const getThemeStyles = () => {
-    switch(themeStyle) {
-      case 'sport':
-        return isDarkMode ? sportDarkStyles : sportStyles;
-      case 'minimal':
-        return isDarkMode ? minimalDarkStyles : minimalStyles;
-      case 'professional':
-        return isDarkMode ? professionalDarkStyles : professionalStyles;
-      case 'fitness':
-        return isDarkMode ? fitnessDarkStyles : fitnessStyles;
-      case 'modern':
-        return isDarkMode ? modernDarkStyles : modernStyles;
-      default:
-        return isDarkMode ? sportDarkStyles : sportStyles;
-    }
-  };
-
-  // 根據主題獲取顏色
-  const getThemeColors = () => {
-    const themes = {
-      // 運動風格
-      sport: {
-        light: {
-          background: '#f2f2f2',
-          cardBackground: '#fff',
-          text: '#333',
-          inputBackground: '#f5f5f5',
-          inputBorder: '#ddd',
-          accent: '#e94560',
-          headerBackground: '#e94560',
-        },
-        dark: {
-          background: '#1a1a2e',
-          cardBackground: '#16213e',
-          text: '#fff',
-          inputBackground: '#0f3460',
-          inputBorder: '#533483',
-          accent: '#e94560',
-          headerBackground: '#16213e',
-        }
-      },
-      // 極簡風格
-      minimal: {
-        light: {
-          background: '#f9f9f9',
-          cardBackground: '#fff',
-          text: '#333',
-          inputBackground: '#f5f5f5',
-          inputBorder: '#ddd',
-          accent: '#6b9080',
-          headerBackground: '#fff',
-        },
-        dark: {
-          background: '#2c3e50',
-          cardBackground: '#34495e',
-          text: '#ecf0f1',
-          inputBackground: '#2c3e50',
-          inputBorder: '#597ea2',
-          accent: '#6b9080',
-          headerBackground: '#34495e',
-        }
-      },
-      // 專業風格
-      professional: {
-        light: {
-          background: '#f2f2f2',
-          cardBackground: '#fff',
-          text: '#333',
-          inputBackground: '#f9f9f9',
-          inputBorder: '#ddd',
-          accent: '#1a2a6c',
-          headerBackground: '#1a2a6c',
-        },
-        dark: {
-          background: '#1c2331',
-          cardBackground: '#273444',
-          text: '#f1f1f1',
-          inputBackground: '#1c2331',
-          inputBorder: '#394b61',
-          accent: '#4267b2',
-          headerBackground: '#1c2331',
-        }
-      },
-      // 健身風格
-      fitness: {
-        light: {
-          background: '#f0f4f8',
-          cardBackground: '#fff',
-          text: '#333',
-          inputBackground: '#f0f4f8',
-          inputBorder: '#d0d0d0',
-          accent: '#ff5722',
-          headerBackground: '#ff5722',
-        },
-        dark: {
-          background: '#2d3436',
-          cardBackground: '#3c4245',
-          text: '#f1f1f1',
-          inputBackground: '#2d3436',
-          inputBorder: '#5a6268',
-          accent: '#ff5722',
-          headerBackground: '#2d3436',
-        }
-      },
-      // 現代風格
-      modern: {
-        light: {
-          background: '#eef2f7',
-          cardBackground: '#fff',
-          text: '#334155',
-          inputBackground: '#f1f5f9',
-          inputBorder: '#cbd5e1',
-          accent: '#3b82f6',
-          headerBackground: '#3b82f6',
-        },
-        dark: {
-          background: '#0f172a',
-          cardBackground: '#1e293b',
-          text: '#f8fafc',
-          inputBackground: '#0f172a',
-          inputBorder: '#334155',
-          accent: '#3b82f6',
-          headerBackground: '#1e293b',
-        }
-      }
-    };
-    
-    return isDarkMode 
-      ? themes[themeStyle]?.dark || themes.sport.dark
-      : themes[themeStyle]?.light || themes.sport.light;
-  };
-  
-  const themeColors = getThemeColors();
-  const styles = getThemeStyles();
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar 
-        barStyle={isDarkMode ? 'light-content' : (themeStyle === 'minimal' ? 'dark-content' : 'light-content')} 
-        backgroundColor={themeColors.headerBackground}
-      />
-      
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>{themeStyle === 'minimal' && !isDarkMode ? '←' : '返回'}</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerText}>RM 換算計算器</Text>
-        <View style={styles.placeholder}></View>
-      </View>
-      
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+    <KeyboardAvoidingView 
+      style={{ flex: 1 }} 
+      behavior={Platform.OS === "ios" ? "padding" : null}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+    >
+      <SafeAreaView 
+        style={[
+          {
+            flex: 1,
+          },
+          isDarkMode ? { backgroundColor: '#121212' } : { backgroundColor: '#f7f7f7' }
+        ]}
       >
-        <View style={styles.mainContent}>
-          <View style={styles.formContainer}>
-            <Text style={styles.sectionTitle}>輸入參數</Text>
-            
-            {/* 性別選擇 */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>性別</Text>
-              <View style={styles.genderSelection}>
-                <TouchableOpacity 
-                  style={[
-                    styles.genderButton, 
-                    gender === 'male' && styles.selectedGender
-                  ]}
-                  onPress={() => setGender('male')}
-                >
-                  <Text style={[
-                    styles.genderText,
-                    gender === 'male' && styles.selectedText
-                  ]}>男</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[
-                    styles.genderButton, 
-                    gender === 'female' && styles.selectedGender
-                  ]}
-                  onPress={() => setGender('female')}
-                >
-                  <Text style={[
-                    styles.genderText,
-                    gender === 'female' && styles.selectedText
-                  ]}>女</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            
-            {/* 年齡輸入 */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>年齡</Text>
-              <TextInput
-                style={styles.input}
-                value={age}
-                onChangeText={setAge}
-                placeholder="請輸入年齡"
-                keyboardType="numeric"
-                placeholderTextColor={isDarkMode ? '#666' : '#bbb'}
-              />
-            </View>
-            
-            {/* 訓練動作選擇 */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>訓練動作</Text>
-              <TouchableOpacity 
-                style={styles.dropdownButton}
-                onPress={() => setModalVisible(true)}
+        <StatusBar
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          backgroundColor={isDarkMode ? '#121212' : '#f7f7f7'}
+        />
+        
+        {/* 標題欄 */}
+        <View style={[
+          {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+          },
+          isDarkMode ? { borderBottomColor: '#333' } : { borderBottomColor: '#e1e1e1' }
+        ]}>
+          <TouchableOpacity
+            style={{
+              width: 40,
+              height: 40,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            onPress={onBack}
+          >
+            <Text style={[
+              {
+                fontSize: 24,
+                fontWeight: 'bold',
+              },
+              isDarkMode ? { color: '#fff' } : { color: '#333' }
+            ]}>
+              ←
+            </Text>
+          </TouchableOpacity>
+          
+          <Text style={[
+            {
+              fontSize: 18,
+              fontWeight: 'bold',
+            },
+            isDarkMode ? { color: '#fff' } : { color: '#333' }
+          ]}>
+            {t('rm_calculator', 'RM 計算器')}
+          </Text>
+          
+          <View style={{ width: 40, height: 40 }} />
+        </View>
+        
+        <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}>
+          {/* 性別選擇 */}
+          <View style={[
+            {
+              marginTop: 20,
+              marginBottom: 10,
+              borderRadius: 8,
+              padding: 12,
+            },
+            isDarkMode ? { backgroundColor: '#1e1e1e', borderWidth: 1, borderColor: '#333' } : { backgroundColor: '#fff' }
+          ]}>
+            <Text style={[
+              {
+                fontSize: 16,
+                fontWeight: '600',
+                marginBottom: 8,
+              },
+              isDarkMode ? { color: '#fff' } : { color: '#333' }
+            ]}>
+              {t('gender', '性別')}
+            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <TouchableOpacity
+                style={[
+                  {
+                    flex: 1,
+                    height: 48,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    marginHorizontal: 4,
+                  },
+                  gender === 'male' && { borderColor: '#007AFF' },
+                  gender === 'male' && { backgroundColor: 'rgba(0, 122, 255, 0.1)' },
+                  gender === 'male' && { borderWidth: 2 },
+                  isDarkMode && { backgroundColor: '#262626', borderColor: '#444' }
+                ]}
+                onPress={() => setGender('male')}
               >
-                <Text style={styles.dropdownButtonText}>
-                  {getExerciseLabel()}
+                <Text style={[
+                  {
+                    fontSize: 16,
+                    fontWeight: '500',
+                    color: '#333',
+                  },
+                  gender === 'male' && { fontWeight: 'bold', color: '#007AFF' },
+                  isDarkMode && { color: '#fff' }
+                ]}>
+                  {t('male', '男')}
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[
+                  {
+                    flex: 1,
+                    height: 48,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    marginHorizontal: 4,
+                  },
+                  gender === 'female' && { borderColor: '#007AFF' },
+                  gender === 'female' && { backgroundColor: 'rgba(0, 122, 255, 0.1)' },
+                  gender === 'female' && { borderWidth: 2 },
+                  isDarkMode && { backgroundColor: '#262626', borderColor: '#444' }
+                ]}
+                onPress={() => setGender('female')}
+              >
+                <Text style={[
+                  {
+                    fontSize: 16,
+                    fontWeight: '500',
+                    color: '#333',
+                  },
+                  gender === 'female' && { fontWeight: 'bold', color: '#007AFF' },
+                  isDarkMode && { color: '#fff' }
+                ]}>
+                  {t('female', '女')}
                 </Text>
               </TouchableOpacity>
             </View>
-            
-            {/* 體重輸入（僅用於引體向上） */}
-            {exercise === 'pull_up' && (
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>體重 (kg)</Text>
-                <TextInput
-                  style={styles.input}
-                  value={bodyWeight}
-                  onChangeText={setBodyWeight}
-                  placeholder="請輸入您的體重"
-                  keyboardType="numeric"
-                  placeholderTextColor={isDarkMode ? '#666' : '#bbb'}
-                />
-              </View>
-            )}
-            
-            {/* 重量輸入 */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>重量 (kg)</Text>
-              <TextInput
-                style={styles.input}
-                value={weight}
-                onChangeText={setWeight}
-                placeholder={exercise === 'pull_up' ? "請輸入額外負重 (如有)" : "請輸入重量"}
-                keyboardType="numeric"
-                placeholderTextColor={isDarkMode ? '#666' : '#bbb'}
-              />
-            </View>
-            
-            {/* 次數輸入 */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>次數</Text>
-              <TextInput
-                style={styles.input}
-                value={reps}
-                onChangeText={setReps}
-                placeholder="請輸入完成次數"
-                keyboardType="numeric"
-                placeholderTextColor={isDarkMode ? '#666' : '#bbb'}
-              />
-            </View>
-            
-            {/* 計算按鈕 */}
-            <TouchableOpacity 
-              style={styles.calculateButton}
-              onPress={calculateRM}
+          </View>
+          
+          {/* 年齡輸入 */}
+          <View style={[
+            {
+              marginTop: 20,
+              marginBottom: 10,
+              borderRadius: 8,
+              padding: 12,
+            },
+            isDarkMode ? { backgroundColor: '#1e1e1e', borderWidth: 1, borderColor: '#333' } : { backgroundColor: '#fff' }
+          ]}>
+            <Text style={[
+              {
+                fontSize: 16,
+                fontWeight: '600',
+                marginBottom: 8,
+              },
+              isDarkMode ? { color: '#fff' } : { color: '#333' }
+            ]}>
+              {t('age', '年齡')}
+              <Text style={{ fontSize: 14, fontWeight: 'normal', color: '#888' }}> ({t('optional', '選填')})</Text>
+            </Text>
+            <TextInput
+              style={[
+                {
+                  height: 48,
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  fontSize: 16,
+                  borderWidth: 1,
+                },
+                isDarkMode ? { backgroundColor: '#262626', borderColor: '#444', color: '#fff' } : { backgroundColor: '#f9f9f9', borderColor: '#e1e1e1', color: '#333' }
+              ]}
+              placeholder={t('enter_age', '輸入年齡')}
+              placeholderTextColor={isDarkMode ? '#888' : '#aaa'}
+              value={age}
+              onChangeText={setAge}
+              keyboardType="numeric"
+            />
+          </View>
+          
+          {/* 訓練動作選擇 */}
+          <View style={[
+            {
+              marginTop: 20,
+              marginBottom: 10,
+              borderRadius: 8,
+              padding: 12,
+            },
+            isDarkMode ? { backgroundColor: '#1e1e1e', borderWidth: 1, borderColor: '#333' } : { backgroundColor: '#fff' }
+          ]}>
+            <Text style={[
+              {
+                fontSize: 16,
+                fontWeight: '600',
+                marginBottom: 8,
+              },
+              isDarkMode ? { color: '#fff' } : { color: '#333' }
+            ]}>
+              {t('exercise', '訓練動作')}
+            </Text>
+            <TouchableOpacity
+              style={[
+                {
+                  height: 48,
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  borderWidth: 1,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                },
+                isDarkMode ? { backgroundColor: '#262626', borderColor: '#444' } : { backgroundColor: '#f9f9f9', borderColor: '#e1e1e1' }
+              ]}
+              onPress={() => setModalVisible(true)}
             >
-              <Text style={styles.calculateButtonText}>計算換算結果</Text>
+              <Text style={[
+                {
+                  fontSize: 16,
+                },
+                isDarkMode ? { color: '#fff' } : { color: '#333' }
+              ]}>
+                {exerciseOptions.find(opt => opt.value === exercise)?.label || t('select_exercise', '選擇訓練動作')}
+              </Text>
+              <Text style={{ fontSize: 14, color: '#888' }}>▼</Text>
             </TouchableOpacity>
           </View>
           
-          {/* RM結果顯示 */}
-          {rmValues.length > 0 && (
-            <View style={styles.resultsContainer}>
-              <Text style={styles.resultsHeader}>RM 換算結果</Text>
-              
-              {/* 1RM 強調顯示 */}
-              <View style={styles.oneRmBox}>
-                <View style={styles.oneRmContent}>
-                  <Text style={styles.oneRmLabel}>1RM (最大重量)</Text>
-                  <Text style={styles.oneRmValue}>{rmValues[0].weight} kg</Text>
-                </View>
-              </View>
-              
-              <View style={styles.tableHeader}>
-                <Text style={styles.tableHeaderText}>RM</Text>
-                <Text style={styles.tableHeaderText}>重量 (kg)</Text>
-                <Text style={styles.tableHeaderText}>百分比</Text>
-              </View>
-              <FlatList
-                data={rmValues}
-                keyExtractor={(item) => item.rm.toString()}
-                scrollEnabled={false}
-                renderItem={({ item }) => (
-                  <View style={[
-                    styles.tableRow,
-                    item.rm % 2 === 0 ? styles.evenRow : null
-                  ]}>
-                    <Text style={styles.tableCell}>{item.rm}RM</Text>
-                    <Text style={styles.tableCell}>{item.weight}</Text>
-                    <Text style={styles.tableCell}>
-                      {Math.round((item.weight / rmValues[0].weight) * 100)}%
-                    </Text>
-                  </View>
-                )}
+          {/* 體重輸入 (僅針對引體向上) */}
+          {exercise === 'pull_up' && (
+            <View style={[
+              {
+                marginTop: 20,
+                marginBottom: 10,
+                borderRadius: 8,
+                padding: 12,
+              },
+              isDarkMode ? { backgroundColor: '#1e1e1e', borderWidth: 1, borderColor: '#333' } : { backgroundColor: '#fff' }
+            ]}>
+              <Text style={[
+                {
+                  fontSize: 16,
+                  fontWeight: '600',
+                  marginBottom: 8,
+                },
+                isDarkMode ? { color: '#fff' } : { color: '#333' }
+              ]}>
+                {t('body_weight', '體重')} (kg)
+              </Text>
+              <TextInput
+                style={[
+                  {
+                    height: 48,
+                    borderRadius: 8,
+                    paddingHorizontal: 12,
+                    fontSize: 16,
+                    borderWidth: 1,
+                  },
+                  isDarkMode ? { backgroundColor: '#262626', borderColor: '#444', color: '#fff' } : { backgroundColor: '#f9f9f9', borderColor: '#e1e1e1', color: '#333' }
+                ]}
+                placeholder={t('enter_body_weight', '輸入體重')}
+                placeholderTextColor={isDarkMode ? '#888' : '#aaa'}
+                value={bodyWeight}
+                onChangeText={setBodyWeight}
+                keyboardType="numeric"
               />
             </View>
           )}
-        </View>
-      </ScrollView>
-      
-      {/* 使用統一的模態框組件 */}
-      <ExerciseSelectionModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        options={exerciseOptions}
-        selectedValue={exercise}
-        onSelect={setExercise}
-        themeColors={themeColors}
-      />
-    </SafeAreaView>
+          
+          {/* 重量輸入 */}
+          <View style={[
+            {
+              marginTop: 20,
+              marginBottom: 10,
+              borderRadius: 8,
+              padding: 12,
+            },
+            isDarkMode ? { backgroundColor: '#1e1e1e', borderWidth: 1, borderColor: '#333' } : { backgroundColor: '#fff' }
+          ]}>
+            <Text style={[
+              {
+                fontSize: 16,
+                fontWeight: '600',
+                marginBottom: 8,
+              },
+              isDarkMode ? { color: '#fff' } : { color: '#333' }
+            ]}>
+              {exercise === 'pull_up' 
+                ? t('added_weight', '附加重量') 
+                : t('weight', '重量')} (kg)
+            </Text>
+            <TextInput
+              style={[
+                {
+                  height: 48,
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  fontSize: 16,
+                  borderWidth: 1,
+                },
+                isDarkMode ? { backgroundColor: '#262626', borderColor: '#444', color: '#fff' } : { backgroundColor: '#f9f9f9', borderColor: '#e1e1e1', color: '#333' }
+              ]}
+              placeholder={exercise === 'pull_up' 
+                ? t('enter_added_weight', '輸入附加重量 (0表示無附加重量)') 
+                : t('enter_weight', '輸入重量')}
+              placeholderTextColor={isDarkMode ? '#888' : '#aaa'}
+              value={weight}
+              onChangeText={setWeight}
+              keyboardType="numeric"
+            />
+          </View>
+          
+          {/* 次數輸入 */}
+          <View style={[
+            {
+              marginTop: 20,
+              marginBottom: 10,
+              borderRadius: 8,
+              padding: 12,
+            },
+            isDarkMode ? { backgroundColor: '#1e1e1e', borderWidth: 1, borderColor: '#333' } : { backgroundColor: '#fff' }
+          ]}>
+            <Text style={[
+              {
+                fontSize: 16,
+                fontWeight: '600',
+                marginBottom: 8,
+              },
+              isDarkMode ? { color: '#fff' } : { color: '#333' }
+            ]}>
+              {t('reps', '次數')}
+            </Text>
+            <TextInput
+              style={[
+                {
+                  height: 48,
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  fontSize: 16,
+                  borderWidth: 1,
+                },
+                isDarkMode ? { backgroundColor: '#262626', borderColor: '#444', color: '#fff' } : { backgroundColor: '#f9f9f9', borderColor: '#e1e1e1', color: '#333' }
+              ]}
+              placeholder={t('enter_reps', '輸入完成的次數')}
+              placeholderTextColor={isDarkMode ? '#888' : '#aaa'}
+              value={reps}
+              onChangeText={setReps}
+              keyboardType="numeric"
+            />
+          </View>
+          
+          {/* 計算按鈕 */}
+          <TouchableOpacity
+            style={[
+              {
+                height: 50,
+                borderRadius: 8,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 24,
+                marginBottom: 30,
+              },
+              isDarkMode ? { backgroundColor: '#4361ee' } : { backgroundColor: '#007AFF' }
+            ]}
+            onPress={calculateRM}
+          >
+            <Text style={[
+              {
+                color: '#fff',
+                fontSize: 18,
+                fontWeight: 'bold',
+              },
+              isDarkMode ? { color: '#fff' } : { color: '#fff' }
+            ]}>
+              {t('calculate', '計算')}
+            </Text>
+          </TouchableOpacity>
+          
+          {/* 結果顯示 */}
+          {rmValues.length > 0 && (
+            <View style={[
+              {
+                borderRadius: 8,
+                padding: 16,
+                marginBottom: 30,
+              },
+              isDarkMode ? { backgroundColor: '#1e1e1e', borderWidth: 1, borderColor: '#333' } : { backgroundColor: '#fff' }
+            ]}>
+              <Text style={[
+                {
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  marginBottom: 16,
+                  textAlign: 'center',
+                },
+                isDarkMode ? { color: '#fff' } : { color: '#333' }
+              ]}>
+                {t('estimated_rm', '預估 RM 值')}
+              </Text>
+              
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: '#e1e1e1', marginBottom: 8 }}>
+                <Text style={[
+                  {
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    flex: 1,
+                    textAlign: 'center',
+                  },
+                  isDarkMode ? { color: '#fff' } : { color: '#333' }
+                ]}>
+                  {t('reps', '次數')}
+                </Text>
+                <Text style={[
+                  {
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    flex: 1,
+                    textAlign: 'center',
+                  },
+                  isDarkMode ? { color: '#fff' } : { color: '#333' }
+                ]}>
+                  {t('weight', '重量')} (kg)
+                </Text>
+              </View>
+              
+              {rmValues.map((item, index) => (
+                <View
+                  key={index}
+                  style={[
+                    {
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      paddingVertical: 10,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#e1e1e1',
+                    },
+                    index % 2 === 0 ? { backgroundColor: '#f9f9f9' } : null,
+                    index === 0 ? { backgroundColor: 'rgba(0, 122, 255, 0.1)' } : null
+                  ]}>
+                  <Text style={[
+                    {
+                      fontSize: 16,
+                      flex: 1,
+                      textAlign: 'center',
+                    },
+                    isDarkMode ? { color: '#fff' } : { color: '#333' },
+                    index === 0 ? { fontWeight: 'bold', color: '#007AFF' } : null
+                  ]}>
+                    {item.reps}
+                  </Text>
+                  <Text style={[
+                    {
+                      fontSize: 16,
+                      flex: 1,
+                      textAlign: 'center',
+                    },
+                    isDarkMode ? { color: '#fff' } : { color: '#333' },
+                    index === 0 ? { fontWeight: 'bold', color: '#007AFF' } : null
+                  ]}>
+                    {item.weight}
+                  </Text>
+                </View>
+              ))}
+              
+              <Text style={[
+                {
+                  fontSize: 12,
+                  marginTop: 16,
+                  fontStyle: 'italic',
+                  textAlign: 'center',
+                },
+                isDarkMode ? { color: '#aaa' } : { color: '#666' }
+              ]}>
+                {t('rm_disclaimer', '注意: 此為估算值，實際值可能因個人技術、疲勞程度等因素而異')}
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+        
+        {/* 動作選擇模態框 */}
+        <ExerciseSelectionModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          options={exerciseOptions}
+          selectedValue={exercise}
+          onSelect={setExercise}
+          isDarkMode={isDarkMode}
+        />
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
-// 通用樣式混合器 - 用於確保各主題下相同的佈局結構
-const createBaseStyles = (themeColors) => {
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: themeColors.background,
-    },
-    scrollContent: {
-      flexGrow: 1,
-      paddingBottom: 20,
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: 16,
-      backgroundColor: themeColors.headerBackground,
-      borderBottomWidth: 1,
-      borderBottomColor: themeColors.inputBorder,
-    },
-    backButton: {
-      padding: 8,
-    },
-    backButtonText: {
-      fontSize: 16,
-      fontWeight: 'bold',
-      color: themeColors.headerBackground === '#fff' ? themeColors.text : '#fff',
-    },
-    headerText: {
-      fontSize: 22,
-      fontWeight: 'bold',
-      color: themeColors.headerBackground === '#fff' ? themeColors.text : '#fff',
-      marginLeft: 16,
-      flex: 1,
-    },
-    placeholder: {
-      width: 40,
-    },
-    mainContent: {
-      padding: 16,
-    },
-    formContainer: {
-      backgroundColor: themeColors.cardBackground,
-      borderRadius: 15,
-      padding: 20,
-      marginBottom: 20,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    sectionTitle: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: themeColors.text,
-      marginBottom: 20,
-    },
-    inputGroup: {
-      marginBottom: 20,
-    },
-    label: {
-      fontSize: 16,
-      fontWeight: '500',
-      marginBottom: 8,
-      color: themeColors.text,
-    },
-    input: {
-      backgroundColor: themeColors.inputBackground,
-      borderRadius: 8,
-      padding: 14,
-      fontSize: 16,
-      borderWidth: 1,
-      borderColor: themeColors.inputBorder,
-      color: themeColors.text,
-    },
-    genderSelection: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: 10,
-    },
-    genderButton: {
-      flex: 1,
-      padding: 14,
-      borderRadius: 8,
-      marginHorizontal: 5,
-      alignItems: 'center',
-      backgroundColor: themeColors.inputBackground,
-      borderWidth: 1,
-      borderColor: themeColors.inputBorder,
-    },
-    selectedGender: {
-      backgroundColor: themeColors.accent,
-      borderColor: themeColors.accent,
-    },
-    genderText: {
-      fontSize: 16,
-      fontWeight: '500',
-      color: themeColors.text,
-    },
-    selectedText: {
-      color: '#fff',
-      fontWeight: 'bold',
-    },
-    dropdownButton: {
-      backgroundColor: themeColors.inputBackground,
-      borderRadius: 8,
-      padding: 14,
-      borderWidth: 1,
-      borderColor: themeColors.inputBorder,
-    },
-    dropdownButtonText: {
-      fontSize: 16,
-      color: themeColors.text,
-    },
-    calculateButton: {
-      backgroundColor: themeColors.accent,
-      borderRadius: 8,
-      padding: 16,
-      alignItems: 'center',
-      marginTop: 10,
-    },
-    calculateButtonText: {
-      color: '#fff',
-      fontSize: 18,
-      fontWeight: 'bold',
-    },
-    resultsContainer: {
-      backgroundColor: themeColors.cardBackground,
-      borderRadius: 15,
-      padding: 20,
-      marginBottom: 20,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    resultsHeader: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginBottom: 16,
-      textAlign: 'center',
-      color: themeColors.text,
-    },
-    oneRmBox: {
-      backgroundColor: themeColors.inputBackground,
-      borderRadius: 8,
-      padding: 16,
-      marginBottom: 20,
-      alignItems: 'center',
-    },
-    oneRmContent: {
-      alignItems: 'center',
-    },
-    oneRmLabel: {
-      fontSize: 16,
-      fontWeight: 'bold',
-      color: themeColors.text,
-      marginBottom: 5,
-    },
-    oneRmValue: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: themeColors.accent,
-    },
-    tableHeader: {
-      flexDirection: 'row',
-      backgroundColor: themeColors.accent,
-      paddingVertical: 12,
-      borderTopLeftRadius: 8,
-      borderTopRightRadius: 8,
-    },
-    tableHeaderText: {
-      flex: 1,
-      color: '#fff',
-      fontSize: 16,
-      fontWeight: 'bold',
-      textAlign: 'center',
-    },
-    tableRow: {
-      flexDirection: 'row',
-      paddingVertical: 12,
-      borderBottomWidth: 1,
-      borderBottomColor: themeColors.inputBorder,
-    },
-    evenRow: {
-      backgroundColor: themeColors.inputBackground,
-    },
-    tableCell: {
-      flex: 1,
-      fontSize: 16,
-      textAlign: 'center',
-      color: themeColors.text,
-    },
-  });
-};
-
-// 各風格樣式
-const sportStyles = createBaseStyles(getThemeColors('sport', false));
-const sportDarkStyles = createBaseStyles(getThemeColors('sport', true));
-const minimalStyles = createBaseStyles(getThemeColors('minimal', false));
-const minimalDarkStyles = createBaseStyles(getThemeColors('minimal', true));
-const professionalStyles = createBaseStyles(getThemeColors('professional', false));
-const professionalDarkStyles = createBaseStyles(getThemeColors('professional', true));
-const fitnessStyles = createBaseStyles(getThemeColors('fitness', false));
-const fitnessDarkStyles = createBaseStyles(getThemeColors('fitness', true));
-const modernStyles = createBaseStyles(getThemeColors('modern', false));
-const modernDarkStyles = createBaseStyles(getThemeColors('modern', true));
-
-// 獲取指定主題和模式的顏色
-function getThemeColors(theme, isDark) {
-  const themes = {
-    // 運動風格
-    sport: {
-      light: {
-        background: '#f2f2f2',
-        cardBackground: '#fff',
-        text: '#333',
-        inputBackground: '#f5f5f5',
-        inputBorder: '#ddd',
-        accent: '#e94560',
-        headerBackground: '#e94560',
-      },
-      dark: {
-        background: '#1a1a2e',
-        cardBackground: '#16213e',
-        text: '#fff',
-        inputBackground: '#0f3460',
-        inputBorder: '#533483',
-        accent: '#e94560',
-        headerBackground: '#16213e',
-      }
-    },
-    // 極簡風格
-    minimal: {
-      light: {
-        background: '#f9f9f9',
-        cardBackground: '#fff',
-        text: '#333',
-        inputBackground: '#f5f5f5',
-        inputBorder: '#ddd',
-        accent: '#6b9080',
-        headerBackground: '#fff',
-      },
-      dark: {
-        background: '#2c3e50',
-        cardBackground: '#34495e',
-        text: '#ecf0f1',
-        inputBackground: '#2c3e50',
-        inputBorder: '#597ea2',
-        accent: '#6b9080',
-        headerBackground: '#34495e',
-      }
-    },
-    // 專業風格
-    professional: {
-      light: {
-        background: '#f2f2f2',
-        cardBackground: '#fff',
-        text: '#333',
-        inputBackground: '#f9f9f9',
-        inputBorder: '#ddd',
-        accent: '#1a2a6c',
-        headerBackground: '#1a2a6c',
-      },
-      dark: {
-        background: '#1c2331',
-        cardBackground: '#273444',
-        text: '#f1f1f1',
-        inputBackground: '#1c2331',
-        inputBorder: '#394b61',
-        accent: '#4267b2',
-        headerBackground: '#1c2331',
-      }
-    },
-    // 健身風格
-    fitness: {
-      light: {
-        background: '#f0f4f8',
-        cardBackground: '#fff',
-        text: '#333',
-        inputBackground: '#f0f4f8',
-        inputBorder: '#d0d0d0',
-        accent: '#ff5722',
-        headerBackground: '#ff5722',
-      },
-      dark: {
-        background: '#2d3436',
-        cardBackground: '#3c4245',
-        text: '#f1f1f1',
-        inputBackground: '#2d3436',
-        inputBorder: '#5a6268',
-        accent: '#ff5722',
-        headerBackground: '#2d3436',
-      }
-    },
-    // 現代風格
-    modern: {
-      light: {
-        background: '#eef2f7',
-        cardBackground: '#fff',
-        text: '#334155',
-        inputBackground: '#f1f5f9',
-        inputBorder: '#cbd5e1',
-        accent: '#3b82f6',
-        headerBackground: '#3b82f6',
-      },
-      dark: {
-        background: '#0f172a',
-        cardBackground: '#1e293b',
-        text: '#f8fafc',
-        inputBackground: '#0f172a',
-        inputBorder: '#334155',
-        accent: '#3b82f6',
-        headerBackground: '#1e293b',
-      }
-    }
-  };
-  
-  return isDark ? themes[theme]?.dark || themes.sport.dark : themes[theme]?.light || themes.sport.light;
-} 
+// 樣式定義
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  containerLight: {
+    backgroundColor: '#f7f7f7',
+  },
+  containerDark: {
+    backgroundColor: '#121212',
+  },
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  headerLight: {
+    backgroundColor: '#fff',
+    borderBottomColor: '#e1e1e1',
+  },
+  headerDark: {
+    backgroundColor: '#1e1e1e',
+    borderBottomColor: '#333',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  textLight: {
+    color: '#333',
+  },
+  textDark: {
+    color: '#fff',
+  },
+  inputGroup: {
+    marginTop: 20,
+    marginBottom: 10,
+    borderRadius: 8,
+    padding: 12,
+  },
+  inputGroupLight: {
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  inputGroupDark: {
+    backgroundColor: '#1e1e1e',
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  optional: {
+    fontSize: 14,
+    fontWeight: 'normal',
+    color: '#888',
+  },
+  input: {
+    height: 48,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    borderWidth: 1,
+  },
+  inputLight: {
+    backgroundColor: '#f9f9f9',
+    borderColor: '#e1e1e1',
+    color: '#333',
+  },
+  inputDark: {
+    backgroundColor: '#262626',
+    borderColor: '#444',
+    color: '#fff',
+  },
+  genderButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  genderButton: {
+    flex: 1,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    borderWidth: 1,
+    marginHorizontal: 4,
+  },
+  genderButtonDark: {
+    backgroundColor: '#262626',
+    borderColor: '#444',
+  },
+  genderButtonActive: {
+    borderWidth: 2,
+  },
+  genderButtonActiveLight: {
+    borderColor: '#007AFF',
+    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+  },
+  genderButtonActiveDark: {
+    borderColor: '#4361ee',
+    backgroundColor: 'rgba(67, 97, 238, 0.2)',
+  },
+  genderButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+  },
+  genderButtonTextActive: {
+    fontWeight: 'bold',
+    color: '#007AFF',
+  },
+  selectButton: {
+    height: 48,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  selectButtonLight: {
+    backgroundColor: '#f9f9f9',
+    borderColor: '#e1e1e1',
+  },
+  selectButtonDark: {
+    backgroundColor: '#262626',
+    borderColor: '#444',
+  },
+  selectButtonText: {
+    fontSize: 16,
+  },
+  selectButtonIcon: {
+    fontSize: 14,
+    color: '#888',
+  },
+  calculateButton: {
+    height: 50,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 24,
+    marginBottom: 30,
+  },
+  calculateButtonLight: {
+    backgroundColor: '#007AFF',
+  },
+  calculateButtonDark: {
+    backgroundColor: '#4361ee',
+  },
+  calculateButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  resultsContainer: {
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 30,
+  },
+  resultsContainerLight: {
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  resultsContainerDark: {
+    backgroundColor: '#1e1e1e',
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  resultsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  resultsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e1e1e1',
+    marginBottom: 8,
+  },
+  resultsHeaderText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+  },
+  resultRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e1e1e1',
+  },
+  resultRowEven: {
+    backgroundColor: '#f9f9f9',
+  },
+  resultRowEvenDark: {
+    backgroundColor: '#262626',
+  },
+  resultRowHighlight: {
+    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+  },
+  resultValue: {
+    fontSize: 16,
+    flex: 1,
+    textAlign: 'center',
+  },
+  resultValueHighlight: {
+    fontWeight: 'bold',
+    color: '#007AFF',
+  },
+  disclaimer: {
+    fontSize: 12,
+    marginTop: 16,
+    fontStyle: 'italic',
+    textAlign: 'center',
+  }
+}); 

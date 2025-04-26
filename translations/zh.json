@@ -84,5 +84,20 @@
   "bench_press": "臥推",
   "general_model": "通用模型",
   
-  "cancel": "取消"
+  "cancel": "取消",
+  
+  "appearance": "外觀",
+  "select_appearance_mode": "選擇顯示模式",
+  "dark_mode": "深色模式",
+  "dark_mode_desc": "適合夜間使用，減少眼睛疲勞",
+  "about": "關於",
+  "app_info": "應用程式資訊",
+  "company_name": "運動科學技術有限公司",
+  "optional": "選填",
+  "estimated_rm": "預估 RM 值",
+  "rm_disclaimer": "注意: 此為估算值，實際值可能因個人技術、疲勞程度等因素而異",
+  "added_weight": "附加重量",
+  "enter_added_weight": "輸入附加重量 (0表示無附加重量)",
+  "fill_all_required_fields": "請填寫必填項",
+  "invalid_input": "輸入無效"
 } 

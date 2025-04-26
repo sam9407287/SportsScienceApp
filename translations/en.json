@@ -84,5 +84,20 @@
   "bench_press": "Bench Press",
   "general_model": "General Model",
   
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  
+  "appearance": "Appearance",
+  "select_appearance_mode": "Select display mode",
+  "dark_mode": "Dark Mode",
+  "dark_mode_desc": "Suitable for night use, reduces eye strain",
+  "about": "About",
+  "app_info": "Application Information",
+  "company_name": "Sports Science Technology Co., Ltd.",
+  "optional": "Optional",
+  "estimated_rm": "Estimated RM Values",
+  "rm_disclaimer": "Note: These are estimates, actual values may vary based on technique, fatigue, and other factors",
+  "added_weight": "Added Weight",
+  "enter_added_weight": "Enter added weight (0 for no added weight)",
+  "fill_all_required_fields": "Please fill in all required fields",
+  "invalid_input": "Invalid input"
 } 

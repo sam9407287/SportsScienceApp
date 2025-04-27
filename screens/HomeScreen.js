@@ -16,18 +16,22 @@ import NutrientConverter from './NutrientConverter';
 import AerobicCalculator from './AerobicCalculator';
 import HealthRecord from './HealthRecord';
 import RPECalculator from './RPECalculator';
+import VBTCalculator from './VBTCalculator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { t, initLanguage, isI18nInitialized, getCurrentLanguage } from '../i18n';
 import { ThemeContext } from '../context/ThemeContext';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
+import TrainingPlanScreen from './TrainingPlanScreen';
 
 // 模塊顏色定義
 const moduleColors = {
   rmCalculator: { light: '#FF6B6B', dark: '#B91C1C' },
   nutrient: { light: '#4ECDC4', dark: '#0F766E' },
   rpeCalculator: { light: '#FFD166', dark: '#B45309' },
-  aerobic: { light: '#06D6A0', dark: '#047857' },
-  healthRecord: { light: '#9775FA', dark: '#5B21B6' },
+  vbtCalculator: { light: '#06D6A0', dark: '#047857' },
+  aerobic: { light: '#9775FA', dark: '#5B21B6' },
+  trainingPlan: { light: '#3B82F6', dark: '#1D4ED8' },
+  healthRecord: { light: '#118AB2', dark: '#1E40AF' },
   settings: { light: '#118AB2', dark: '#1E40AF' },
 };
 
@@ -36,7 +40,9 @@ const basicModules = [
   { key: 'rmCalculator', title: 'RM 換算計算器', icon: 'weight-lifter', iconType: 'MaterialCommunityIcons' },
   { key: 'nutrient', title: '營養素換算', icon: 'nutrition', iconType: 'MaterialCommunityIcons' },
   { key: 'rpeCalculator', title: 'RPE 換算計算器', icon: 'arm-flex', iconType: 'MaterialCommunityIcons' },
+  { key: 'vbtCalculator', title: '速度依循訓練計算器', icon: 'speedometer', iconType: 'MaterialCommunityIcons' },
   { key: 'aerobic', title: '有氧能力計算', icon: 'heart-pulse', iconType: 'MaterialCommunityIcons' },
+  { key: 'trainingPlan', title: '訓練計劃', icon: 'calendar-check', iconType: 'MaterialCommunityIcons' },
   { key: 'healthRecord', title: '健康記錄', icon: 'chart-line', iconType: 'MaterialCommunityIcons' },
   { key: 'settings', title: '設置', icon: 'settings-outline', iconType: 'Ionicons' },
 ];
@@ -52,7 +58,9 @@ const getTranslatedModules = () => {
       { key: 'rmCalculator', title: t('rm_calculator'), icon: 'weight-lifter', iconType: 'MaterialCommunityIcons' },
       { key: 'nutrient', title: t('nutrient_converter'), icon: 'nutrition', iconType: 'MaterialCommunityIcons' },
       { key: 'rpeCalculator', title: t('rpe_calculator'), icon: 'arm-flex', iconType: 'MaterialCommunityIcons' },
+      { key: 'vbtCalculator', title: t('vbt_title'), icon: 'speedometer', iconType: 'MaterialCommunityIcons' },
       { key: 'aerobic', title: t('aerobic'), icon: 'heart-pulse', iconType: 'MaterialCommunityIcons' },
+      { key: 'trainingPlan', title: t('training_plan'), icon: 'calendar-check', iconType: 'MaterialCommunityIcons' },
       { key: 'healthRecord', title: t('health_record'), icon: 'chart-line', iconType: 'MaterialCommunityIcons' },
       { key: 'settings', title: t('settings'), icon: 'settings-outline', iconType: 'Ionicons' },
     ];
@@ -149,6 +157,14 @@ export default function HomeScreen() {
     );
   }
   
+  if (currentScreen === 'vbtCalculator') {
+    return (
+      <VBTCalculator
+        onBack={handleBackToHome}
+      />
+    );
+  }
+  
   if (currentScreen === 'aerobic') {
     return (
       <AerobicCalculator
@@ -168,6 +184,14 @@ export default function HomeScreen() {
   if (currentScreen === 'settings') {
     return (
       <Settings 
+        onBack={handleBackToHome}
+      />
+    );
+  }
+  
+  if (currentScreen === 'trainingPlan') {
+    return (
+      <TrainingPlanScreen
         onBack={handleBackToHome}
       />
     );

@@ -33,6 +33,139 @@ const cycleTypes = [
   { id: 'micro', title: '小週期', description: '通常持續7-10天，包含每天的具體訓練安排' }
 ];
 
+// 預設訓練計劃模板
+const trainingPlanTemplates = [
+  // 馬拉松訓練計劃
+  {
+    id: 'template_marathon_beginner',
+    name: '初學者馬拉松計劃',
+    goalType: 'marathon',
+    duration: 16,
+    frequency: 4,
+    intensityLevel: 'beginner',
+    useCycles: true,
+    description: '適合首次參加馬拉松的跑者，循序漸進增加里程，包含基礎、建設、強化和減量階段。',
+    features: ['每週4次訓練', '最長跑距離逐步增加至32公里', '包含間歇訓練和長距離跑', '完整的減量期'],
+    thumbnail: null
+  },
+  {
+    id: 'template_marathon_intermediate',
+    name: '中級馬拉松計劃',
+    goalType: 'marathon',
+    duration: 12,
+    frequency: 5,
+    intensityLevel: 'intermediate',
+    useCycles: true,
+    description: '適合有馬拉松經驗的跑者，專注於提高配速和耐力，包含更多高強度間歇訓練。',
+    features: ['每週5次訓練', '包含速度訓練和配速跑', '強化期包含馬拉松配速訓練', '更短的減量期'],
+    thumbnail: null
+  },
+  
+  // 鐵人三項訓練計劃
+  {
+    id: 'template_triathlon_sprint',
+    name: '短距離鐵人三項計劃',
+    goalType: 'triathlon',
+    duration: 12,
+    frequency: 6,
+    intensityLevel: 'beginner',
+    useCycles: true,
+    description: '為短距離鐵人三項(750m游泳/20km騎車/5km跑步)設計的訓練計劃，平衡三項運動訓練。',
+    features: ['每週平均2次游泳、2次騎車、2次跑步', '包含轉換訓練', '漸進增加訓練量', '比賽策略準備'],
+    thumbnail: null
+  },
+  {
+    id: 'template_triathlon_olympic',
+    name: '奧運距離鐵人三項計劃',
+    goalType: 'triathlon',
+    duration: 16,
+    frequency: 7,
+    intensityLevel: 'intermediate',
+    useCycles: true,
+    description: '為奧運距離鐵人三項(1.5km游泳/40km騎車/10km跑步)設計的全面訓練計劃。',
+    features: ['每週7次訓練，涵蓋三項運動', '包含複合訓練日', '專注於轉換效率', '包含賽前模擬'],
+    thumbnail: null
+  },
+  
+  // 增肌訓練計劃
+  {
+    id: 'template_strength_beginner',
+    name: '初學者增肌計劃',
+    goalType: 'strength',
+    duration: 12,
+    frequency: 3,
+    intensityLevel: 'beginner',
+    useCycles: false,
+    description: '適合健身新手的全身增肌計劃，著重於基礎複合動作和正確姿勢的建立。',
+    features: ['全身訓練', '專注於基礎複合動作', '循序漸進增加重量', '充分的恢復時間'],
+    thumbnail: null
+  },
+  {
+    id: 'template_strength_hypertrophy',
+    name: '肌肉肥大專項計劃',
+    goalType: 'strength',
+    duration: 8,
+    frequency: 5,
+    intensityLevel: 'intermediate',
+    useCycles: true,
+    description: '以肌肉肥大為主要目標的訓練計劃，採用高容量、中等強度的訓練方式。',
+    features: ['分化訓練(推/拉/腿)', '高訓練容量', '適中休息時間', '漸進式超負荷'],
+    thumbnail: null
+  },
+  
+  // 減脂訓練計劃
+  {
+    id: 'template_fatLoss_beginner',
+    name: '初學者減脂計劃',
+    goalType: 'fatLoss',
+    duration: 8,
+    frequency: 4,
+    intensityLevel: 'beginner',
+    useCycles: false,
+    description: '結合有氧運動和阻力訓練的全面減脂計劃，適合減脂初學者。',
+    features: ['全身阻力訓練', 'HIIT和穩態有氧結合', '循序漸進增加強度', '簡單易執行'],
+    thumbnail: null
+  },
+  {
+    id: 'template_fatLoss_hiit',
+    name: 'HIIT減脂強化計劃',
+    goalType: 'fatLoss',
+    duration: 6,
+    frequency: 5,
+    intensityLevel: 'intermediate',
+    useCycles: true,
+    description: '高強度間歇訓練為主的減脂計劃，高效燃脂並保留肌肉。',
+    features: ['專注於HIIT訓練', '配合全身阻力訓練', '訓練時間短但高效', '適合時間有限的人群'],
+    thumbnail: null
+  },
+  
+  // 交叉訓練計劃
+  {
+    id: 'template_crossfit_beginner',
+    name: '交叉訓練入門計劃',
+    goalType: 'crossfit',
+    duration: 10,
+    frequency: 4,
+    intensityLevel: 'beginner',
+    useCycles: false,
+    description: '為交叉訓練初學者設計的入門計劃，著重於基礎動作技巧和體能建設。',
+    features: ['學習基本動作技巧', '逐步提高訓練強度', '每週有充分恢復時間', '包含技術和體能訓練'],
+    thumbnail: null
+  },
+  {
+    id: 'template_crossfit_wod',
+    name: '交叉訓練WOD挑戰計劃',
+    goalType: 'crossfit',
+    duration: 8,
+    frequency: 5,
+    intensityLevel: 'advanced',
+    useCycles: true,
+    description: '高強度交叉訓練計劃，包含多樣化的每日訓練挑戰(WOD)，適合有經驗的訓練者。',
+    features: ['多樣化WOD訓練', '力量和體能全面發展', '高強度訓練', '技術和強度並重'],
+    thumbnail: null
+  }
+];
+
 export default function TrainingPlanScreen({ onBack }) {
   const { isDarkMode } = useContext(ThemeContext);
   const [currentView, setCurrentView] = useState('main'); // main, templates, createPlan, viewPlan, editPlan
@@ -40,6 +173,7 @@ export default function TrainingPlanScreen({ onBack }) {
   const [userPlans, setUserPlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [showGoalModal, setShowGoalModal] = useState(false);
+  const [filteredTemplates, setFilteredTemplates] = useState(trainingPlanTemplates);
   
   // 載入用戶訓練計劃
   useEffect(() => {
@@ -93,6 +227,30 @@ export default function TrainingPlanScreen({ onBack }) {
     setCurrentView('main');
     setSelectedPlan(null);
     setSelectedGoal(null);
+  };
+  
+  // 基於模板創建計劃
+  const createPlanFromTemplate = (template) => {
+    setSelectedGoal(trainingGoals.find(goal => goal.id === template.goalType));
+    
+    // 預設填充模板數據
+    const newPlan = {
+      ...template,
+      id: undefined,  // 創建時會生成新ID
+      name: `${template.name} (複製)`,
+      createdAt: new Date().toISOString()
+    };
+    setSelectedPlan(newPlan);
+    setCurrentView('createPlan');
+  };
+  
+  // 篩選模板
+  const filterTemplatesByGoal = (goalId) => {
+    if (goalId === 'all') {
+      setFilteredTemplates(trainingPlanTemplates);
+    } else {
+      setFilteredTemplates(trainingPlanTemplates.filter(template => template.goalType === goalId));
+    }
   };
   
   // 渲染目標選擇模態視窗
@@ -381,8 +539,205 @@ export default function TrainingPlanScreen({ onBack }) {
     );
   };
   
+  // 渲染模板瀏覽視圖
+  const renderTemplatesView = () => {
+    return (
+      <View style={styles.mainContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={goToMainView}>
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color={isDarkMode ? '#fff' : '#000'}
+            />
+          </TouchableOpacity>
+          <Text style={[
+            styles.headerTitle,
+            isDarkMode ? styles.textDark : styles.textLight
+          ]}>
+            訓練計劃模板
+          </Text>
+        </View>
+        
+        <View style={styles.filterContainer}>
+          <ScrollView 
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterScrollContent}
+          >
+            <TouchableOpacity
+              style={[
+                styles.filterButton,
+                isDarkMode ? styles.filterButtonDark : styles.filterButtonLight
+              ]}
+              onPress={() => filterTemplatesByGoal('all')}
+            >
+              <Text style={[
+                styles.filterButtonText,
+                isDarkMode ? styles.textDark : styles.textLight
+              ]}>
+                所有
+              </Text>
+            </TouchableOpacity>
+            
+            {trainingGoals.map(goal => (
+              <TouchableOpacity
+                key={goal.id}
+                style={[
+                  styles.filterButton,
+                  isDarkMode ? styles.filterButtonDark : styles.filterButtonLight
+                ]}
+                onPress={() => filterTemplatesByGoal(goal.id)}
+              >
+                <MaterialCommunityIcons
+                  name={goal.icon}
+                  size={18}
+                  color={isDarkMode ? '#fff' : '#333'}
+                  style={styles.filterIcon}
+                />
+                <Text style={[
+                  styles.filterButtonText,
+                  isDarkMode ? styles.textDark : styles.textLight
+                ]}>
+                  {goal.title}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+        
+        <FlatList
+          data={filteredTemplates}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View
+              style={[
+                styles.templateCard,
+                isDarkMode ? styles.cardDark : styles.cardLight
+              ]}
+            >
+              <View style={styles.templateHeader}>
+                <View style={styles.templateTitleContainer}>
+                  <MaterialCommunityIcons
+                    name={trainingGoals.find(goal => goal.id === item.goalType)?.icon || 'dumbbell'}
+                    size={24}
+                    color={isDarkMode ? "#fff" : "#333"}
+                    style={styles.templateIcon}
+                  />
+                  <View>
+                    <Text style={[
+                      styles.templateTitle,
+                      isDarkMode ? styles.textDark : styles.textLight
+                    ]}>
+                      {item.name}
+                    </Text>
+                    <Text style={[
+                      styles.templateType,
+                      isDarkMode ? styles.textDarkSecondary : styles.textLightSecondary
+                    ]}>
+                      {trainingGoals.find(goal => goal.id === item.goalType)?.title || '自定義計劃'}
+                    </Text>
+                  </View>
+                </View>
+                
+                <View style={[
+                  styles.intensityBadge,
+                  item.intensityLevel === 'beginner' 
+                    ? styles.intensityBeginner 
+                    : (item.intensityLevel === 'intermediate' 
+                      ? styles.intensityIntermediate 
+                      : styles.intensityAdvanced)
+                ]}>
+                  <Text style={styles.intensityText}>
+                    {item.intensityLevel === 'beginner' 
+                      ? '初級' 
+                      : (item.intensityLevel === 'intermediate' 
+                        ? '中級' 
+                        : '高級')}
+                  </Text>
+                </View>
+              </View>
+              
+              <Text style={[
+                styles.templateDescription,
+                isDarkMode ? styles.textDarkSecondary : styles.textLightSecondary
+              ]}>
+                {item.description}
+              </Text>
+              
+              <View style={styles.templateDetails}>
+                <View style={styles.templateDetailItem}>
+                  <MaterialCommunityIcons
+                    name="calendar-range"
+                    size={18}
+                    color={isDarkMode ? "#aaa" : "#666"}
+                  />
+                  <Text style={[
+                    styles.templateDetailText,
+                    isDarkMode ? styles.textDarkSecondary : styles.textLightSecondary
+                  ]}>
+                    {item.duration} 週
+                  </Text>
+                </View>
+                
+                <View style={styles.templateDetailItem}>
+                  <MaterialCommunityIcons
+                    name="run"
+                    size={18}
+                    color={isDarkMode ? "#aaa" : "#666"}
+                  />
+                  <Text style={[
+                    styles.templateDetailText,
+                    isDarkMode ? styles.textDarkSecondary : styles.textLightSecondary
+                  ]}>
+                    每週 {item.frequency} 次訓練
+                  </Text>
+                </View>
+              </View>
+              
+              <View style={styles.templateFeatures}>
+                {item.features.map((feature, index) => (
+                  <View key={index} style={styles.featureItem}>
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={16}
+                      color={isDarkMode ? "#4caf50" : "#2e7d32"}
+                      style={styles.featureIcon}
+                    />
+                    <Text style={[
+                      styles.featureText,
+                      isDarkMode ? styles.textDark : styles.textLight
+                    ]}>
+                      {feature}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+              
+              <TouchableOpacity
+                style={[
+                  styles.useTemplateButton,
+                  isDarkMode ? styles.buttonDark : styles.buttonLight
+                ]}
+                onPress={() => createPlanFromTemplate(item)}
+              >
+                <Text style={[
+                  styles.useTemplateButtonText,
+                  { color: isDarkMode ? "#fff" : "#007bff" }
+                ]}>
+                  使用此模板
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          contentContainerStyle={styles.templateList}
+        />
+      </View>
+    );
+  };
+  
   // 渲染其他視圖（由於功能複雜，此處只包含主視圖部分）
-  // TODO: 實現 renderTemplatesView, renderCreatePlanView, renderViewPlanView, renderEditPlanView
+  // TODO: 實現 renderCreatePlanView, renderViewPlanView, renderEditPlanView
 
   return (
     <SafeAreaView
@@ -398,6 +753,7 @@ export default function TrainingPlanScreen({ onBack }) {
         contentContainerStyle={styles.scrollContent}
       >
         {currentView === 'main' && renderMainView()}
+        {currentView === 'templates' && renderTemplatesView()}
         {/* TODO: 實現其他視圖 */}
       </ScrollView>
       
@@ -625,4 +981,123 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
+  // 模板瀏覽界面樣式
+  filterContainer: {
+    marginBottom: 16,
+  },
+  filterScrollContent: {
+    paddingBottom: 8,
+  },
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    marginRight: 8,
+  },
+  filterButtonDark: {
+    backgroundColor: '#333333',
+  },
+  filterButtonLight: {
+    backgroundColor: '#f0f0f0',
+  },
+  filterIcon: {
+    marginRight: 6,
+  },
+  filterButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  templateList: {
+    paddingBottom: 30,
+  },
+  templateCard: {
+    borderRadius: 12,
+    marginBottom: 20,
+    padding: 16,
+  },
+  templateHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  templateTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  templateIcon: {
+    marginRight: 12,
+  },
+  templateTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  templateType: {
+    fontSize: 14,
+    marginTop: 2,
+  },
+  intensityBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  intensityBeginner: {
+    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+  },
+  intensityIntermediate: {
+    backgroundColor: 'rgba(33, 150, 243, 0.2)',
+  },
+  intensityAdvanced: {
+    backgroundColor: 'rgba(244, 67, 54, 0.2)',
+  },
+  intensityText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#fff',
+  },
+  templateDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  templateDetails: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  templateDetailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  templateDetailText: {
+    fontSize: 14,
+    marginLeft: 6,
+  },
+  templateFeatures: {
+    marginBottom: 16,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  featureIcon: {
+    marginRight: 6,
+  },
+  featureText: {
+    fontSize: 14,
+  },
+  useTemplateButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  useTemplateButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  }
 }); 

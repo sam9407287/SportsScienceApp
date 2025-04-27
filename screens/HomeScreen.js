@@ -13,6 +13,7 @@ import {
 import RMCalculator from './RMCalculator';
 import Settings from './Settings';
 import NutrientConverter from './NutrientConverter';
+import AerobicCalculator from './AerobicCalculator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { t, initLanguage, isI18nInitialized, getCurrentLanguage } from '../i18n';
 import { ThemeContext } from '../context/ThemeContext';
@@ -130,6 +131,14 @@ export default function HomeScreen() {
   if (currentScreen === 'nutrient') {
     return (
       <NutrientConverter
+        onBack={handleBackToHome}
+      />
+    );
+  }
+  
+  if (currentScreen === 'aerobic') {
+    return (
+      <AerobicCalculator
         onBack={handleBackToHome}
       />
     );

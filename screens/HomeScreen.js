@@ -15,6 +15,7 @@ import Settings from './Settings';
 import NutrientConverter from './NutrientConverter';
 import AerobicCalculator from './AerobicCalculator';
 import HealthRecord from './HealthRecord';
+import RPECalculator from './RPECalculator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { t, initLanguage, isI18nInitialized, getCurrentLanguage } from '../i18n';
 import { ThemeContext } from '../context/ThemeContext';
@@ -24,7 +25,7 @@ import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-ico
 const moduleColors = {
   rmCalculator: { light: '#FF6B6B', dark: '#B91C1C' },
   nutrient: { light: '#4ECDC4', dark: '#0F766E' },
-  maxEffort: { light: '#FFD166', dark: '#B45309' },
+  rpeCalculator: { light: '#FFD166', dark: '#B45309' },
   aerobic: { light: '#06D6A0', dark: '#047857' },
   healthRecord: { light: '#9775FA', dark: '#5B21B6' },
   settings: { light: '#118AB2', dark: '#1E40AF' },
@@ -34,7 +35,7 @@ const moduleColors = {
 const basicModules = [
   { key: 'rmCalculator', title: 'RM 換算計算器', icon: 'weight-lifter', iconType: 'MaterialCommunityIcons' },
   { key: 'nutrient', title: '營養素換算', icon: 'nutrition', iconType: 'MaterialCommunityIcons' },
-  { key: 'maxEffort', title: '最大激勵換算', icon: 'run-fast', iconType: 'MaterialCommunityIcons' },
+  { key: 'rpeCalculator', title: 'RPE 換算計算器', icon: 'arm-flex', iconType: 'MaterialCommunityIcons' },
   { key: 'aerobic', title: '有氧能力計算', icon: 'heart-pulse', iconType: 'MaterialCommunityIcons' },
   { key: 'healthRecord', title: '健康記錄', icon: 'chart-line', iconType: 'MaterialCommunityIcons' },
   { key: 'settings', title: '設置', icon: 'settings-outline', iconType: 'Ionicons' },
@@ -50,7 +51,7 @@ const getTranslatedModules = () => {
     return [
       { key: 'rmCalculator', title: t('rm_calculator'), icon: 'weight-lifter', iconType: 'MaterialCommunityIcons' },
       { key: 'nutrient', title: t('nutrient_converter'), icon: 'nutrition', iconType: 'MaterialCommunityIcons' },
-      { key: 'maxEffort', title: t('max_effort'), icon: 'run-fast', iconType: 'MaterialCommunityIcons' },
+      { key: 'rpeCalculator', title: t('rpe_calculator'), icon: 'arm-flex', iconType: 'MaterialCommunityIcons' },
       { key: 'aerobic', title: t('aerobic'), icon: 'heart-pulse', iconType: 'MaterialCommunityIcons' },
       { key: 'healthRecord', title: t('health_record'), icon: 'chart-line', iconType: 'MaterialCommunityIcons' },
       { key: 'settings', title: t('settings'), icon: 'settings-outline', iconType: 'Ionicons' },
@@ -135,6 +136,14 @@ export default function HomeScreen() {
   if (currentScreen === 'nutrient') {
     return (
       <NutrientConverter
+        onBack={handleBackToHome}
+      />
+    );
+  }
+  
+  if (currentScreen === 'rpeCalculator') {
+    return (
+      <RPECalculator
         onBack={handleBackToHome}
       />
     );

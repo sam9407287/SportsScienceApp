@@ -18,7 +18,7 @@
   "back": "Back",
   "rm_calculator": "RM Calculator",
   "nutrient_converter": "Nutrient Converter",
-  "max_effort": "Max Effort Converter",
+  "rpe_calculator": "RPE Calculator",
   "aerobic": "Aerobic Capacity",
   "health_record": "Health Record",
   
@@ -164,5 +164,22 @@
   "last_90_days": "Last 90 Days",
   "all_time": "All Time",
   "time_period": "Time Period",
-  "progress": "Progress"
+  "progress": "Progress",
+
+  "rpe_title": "RPE Calculator",
+  "rpe_description": "RPE (Rate of Perceived Exertion) is a scale that measures the intensity of your exercise based on how you feel.",
+  "rpe_value": "RPE Value",
+  "reps_performed": "Reps Performed",
+  "weight_lifted": "Weight Lifted (kg)",
+  "estimated_1rm": "Estimated 1RM",
+  "percent_of_1rm": "Percent of 1RM",
+  "enter_rpe": "Enter RPE (1-10)",
+  "enter_weight_lifted": "Enter weight lifted",
+  "rpe_chart": "RPE Chart Reference",
+  "rpe_calc_result": "RPE Calculation Result",
+  "rpe_to_percentage": "RPE to Percentage",
+  "percentage_to_rpe": "Percentage to RPE",
+  "rpe_explanation": "RPE 10: Maximum effort, could not do more reps\nRPE 9: Could do 1 more rep\nRPE 8: Could do 2 more reps\nRPE 7: Could do 3 more reps\nRPE 6: Could do 4 more reps",
+  "calculate_from_rpe": "Calculate from RPE",
+  "calculate_from_percentage": "Calculate from Percentage"
 } 

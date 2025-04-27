@@ -18,7 +18,7 @@
   "back": "返回",
   "rm_calculator": "RM 換算計算器",
   "nutrient_converter": "營養素換算",
-  "max_effort": "最大激勵換算",
+  "rpe_calculator": "RPE 換算計算器",
   "aerobic": "有氧能力計算",
   "health_record": "健康記錄",
   
@@ -164,5 +164,22 @@
   "last_90_days": "最近90天",
   "all_time": "全部時間",
   "time_period": "時間段",
-  "progress": "進度"
+  "progress": "進度",
+
+  "rpe_title": "RPE計算器",
+  "rpe_description": "RPE（自覺用力程度）是一種根據您的感覺來衡量運動強度的量表。",
+  "rpe_value": "RPE值",
+  "reps_performed": "完成的次數",
+  "weight_lifted": "舉起的重量（公斤）",
+  "estimated_1rm": "預估的1RM",
+  "percent_of_1rm": "1RM的百分比",
+  "enter_rpe": "輸入RPE值（1-10）",
+  "enter_weight_lifted": "輸入舉起的重量",
+  "rpe_chart": "RPE對照表",
+  "rpe_calc_result": "RPE計算結果",
+  "rpe_to_percentage": "RPE轉換為百分比",
+  "percentage_to_rpe": "百分比轉換為RPE",
+  "rpe_explanation": "RPE 10：最大努力，無法做更多次數\nRPE 9：還能再做1次\nRPE 8：還能再做2次\nRPE 7：還能再做3次\nRPE 6：還能再做4次",
+  "calculate_from_rpe": "從RPE計算",
+  "calculate_from_percentage": "從百分比計算"
 } 
